@@ -13,7 +13,11 @@ back_api = BackAPIFactory.Make()
 async def handle_old_form(s_view):
     old_form = s_view.Read('displayed_form')
     if old_form:
-        await old_form.Hide()
+        try:
+            await old_form.Hide()
+        except Exception as e:
+            print("ERROR RAISED WHILE DELETING FORM")
+            print(e)
 
 async def handle_back_request(contents, s_view):
     user_id = s_view.Read('back_id')

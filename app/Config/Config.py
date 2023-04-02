@@ -60,3 +60,7 @@ class Config():
 
             self.WEBHOOK = True
 
+        self.LOG_DIR        = os.getenv('LOG_DIR')
+        self.LOG_FILE       = os.getenv('LOG_FILE')
+        self.LOG_FILE_SIZE  = int(os.getenv('LOG_FILE_SIZE'))
+        self.LOG_MAX_FILES  = int(os.getenv('LOG_MAX_FILES'))

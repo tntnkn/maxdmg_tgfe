@@ -2,9 +2,12 @@ from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.handler     import CancelHandler
 from aiogram import types
 
-from ..Utils                        import (SessionLock, 
-                                            update_user_last_action_time)
+from ..Utils                        import (
+    SessionLock, 
+    update_user_last_action_time
+)
 from ..Storage                      import Storage
+from ..Statistics                   import StatsDB 
 
 
 class sessionControl(BaseMiddleware):
@@ -19,6 +22,7 @@ class sessionControl(BaseMiddleware):
         s_h = Storage()
         if not s_h.HasUser(tg_user_id):
             s_h.AddUser(tg_user_id)
+            await StatsDB().NewUser(tg_user_id)
         
         if not SessionLock.Lock(tg_user_id):
             raise CancelHandler()

@@ -64,3 +64,9 @@ class Config():
         self.LOG_FILE       = os.getenv('LOG_FILE')
         self.LOG_FILE_SIZE  = int(os.getenv('LOG_FILE_SIZE'))
         self.LOG_MAX_FILES  = int(os.getenv('LOG_MAX_FILES'))
+
+        self.STATS_DB_NAME  = \
+            os.getenv('POSTGRES_DB')
+        self.STATS_DB_PASS  = \
+            os.getenv('TGFE_STATS_ADMIN_PASS')
+

@@ -1,7 +1,22 @@
-from ..Factories    import BackAPIFactory, FormFactory, DocumentFactory
-from ..Storage      import UserStorageView, Storage
-from ..Utils        import (CallbackTransformer, AllowedInputTypeHelper, 
-                            Send, MessagesArchive, MessageManager)
+from ..Factories    import (
+    BackAPIFactory, 
+    FormFactory, 
+    DocumentFactory,
+)
+from ..Storage      import (
+    UserStorageView, 
+    Storage,
+)
+from ..Utils        import (
+    CallbackTransformer, 
+    AllowedInputTypeHelper,
+    Send, 
+    MessagesArchive, 
+    MessageManager
+)
+from ..Statistics   import (
+    StatsDB,
+)
 from ..Static       import AllowedInputType
 from ..validators   import check_input_length
 from ..bot          import dp, types
@@ -29,6 +44,7 @@ async def handle_back_request(contents, s_view):
     if resp['type'] == 'doc_info':
         doc = DocumentFactory.Make(resp['contents'])
         await MessageManager.SendDocument(doc, tg_user_id)
+        await StatsDB().NewDocumentGenerated(tg_user_id)
         await MessagesArchive.Clear(tg_user_id)
         s_view.Destroy()
         return
@@ -43,9 +59,13 @@ async def handle_back_request(contents, s_view):
 
 @dp.message_handler(commands=['start', 'help'])
 async def startCommandHandler(message: types.Message):
-    s_view  = UserStorageView(message.from_id)
+    tg_user_id  = message.from_id
+    s_view      = UserStorageView(tg_user_id)
 
-    MessagesArchive.Memo(message.message_id, message.from_id)
+    await handle_old_form(s_view)
+    await StatsDB().SetUserMessagable(tg_user_id)
+    
+    MessagesArchive.Memo(message.message_id, tg_user_id)
 
     allowed = s_view.Read('allowed_input_types')
     allowed = AllowedInputTypeHelper.AddAllowedInput(
@@ -54,7 +74,6 @@ async def startCommandHandler(message: types.Message):
             AllowedInputType.COMMANDS, allowed)
     s_view.Write('allowed_input_types', allowed)
 
-    await handle_old_form(s_view)
     await handle_back_request(None, s_view)
 
 

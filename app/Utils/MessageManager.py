@@ -9,11 +9,12 @@ from ..Loggers      import DefaultLogger
 from ..Exceptions   import TGFE_BadUserInSystem
 
 
-__logger  = DefaultLogger()
+logger  = DefaultLogger()
 
 class MessageManager():
     @staticmethod
     async def SendText(text, tg_user_id):
+        global __logger
         try:
             resp = await bot.send_message(
                      tg_user_id, 
@@ -28,6 +29,7 @@ class MessageManager():
 
     @staticmethod
     async def SendInlineKB(kb, kb_desc, tg_user_id):
+        global __logger
         try:
             resp = await bot.send_message(
                      tg_user_id, 
@@ -46,11 +48,11 @@ class MessageManager():
         try:
             return await bot.delete_message(tg_user_id, message_id)
         except MessageToDeleteNotFound:
-            __logger.error(f"\nCannot delete message {message_id} for {tg_user_id}",
+            logger.error(f"\nCannot delete message {message_id} for {tg_user_id}",
                          exc_info=True)
             return None
         except BotBlocked:
-            __logger(f"\nCannot delete message {message_id} -- user {tg_user_id} blocked the bot!",
+            logger(f"\nCannot delete message {message_id} -- user {tg_user_id} blocked the bot!",
                      exc_info=True)
             raise TGFE_BadUserInSystem("In MessageManager.Delete", 
                                       tg_user_id)

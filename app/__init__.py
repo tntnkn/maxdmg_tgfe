@@ -7,6 +7,7 @@ def start_bot():
         dp, 
         start_polling, 
         start_webhook,
+        config,
     )
     from .Factories         import (
         BackAPIFactory, 
@@ -17,7 +18,9 @@ def start_bot():
         CommandsManager, 
         DanglingSessionsManager
     )
-    from .Config            import config
+    from .Statistics        import init_stats_db
+
+    init_stats_db()
 
     resp = MaxDmgLoader().Load(
         config.AIRTABLE_API_KEY,

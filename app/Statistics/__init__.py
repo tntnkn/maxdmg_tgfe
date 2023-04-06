@@ -1,9 +1,10 @@
 import asyncio
 from .Schema        import metadata_obj as __md
 from .Connections   import a_engine as __eng
-from .Interface import StatsDB
+from .Interface     import StatsDB
 
 
+stats_db = StatsDB()
 
 def init_stats_db():
     loop = asyncio.get_event_loop()

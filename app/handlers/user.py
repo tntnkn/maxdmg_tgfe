@@ -15,7 +15,7 @@ from ..Utils        import (
     MessageManager
 )
 from ..Statistics   import (
-    StatsDB,
+    stats_db,
 )
 from ..Static       import AllowedInputType
 from ..validators   import check_input_length
@@ -44,7 +44,7 @@ async def handle_back_request(contents, s_view):
     if resp['type'] == 'doc_info':
         doc = DocumentFactory.Make(resp['contents'])
         await MessageManager.SendDocument(doc, tg_user_id)
-        await StatsDB().NewDocumentGenerated(tg_user_id)
+        await stats_db.NewDocumentGenerated(tg_user_id)
         await MessagesArchive.Clear(tg_user_id)
         s_view.Destroy()
         return
@@ -63,7 +63,7 @@ async def startCommandHandler(message: types.Message):
     s_view      = UserStorageView(tg_user_id)
 
     await handle_old_form(s_view)
-    await StatsDB().SetUserMessagable(tg_user_id)
+    await stats_db.SetUserMessagable(tg_user_id)
     
     MessagesArchive.Memo(message.message_id, tg_user_id)
 

@@ -18,7 +18,7 @@ from ..Static       import (
     AllowedInputType,
 )
 from ..Statistics   import (
-    StatsDB,
+    stats_db,
 )
 from ..Exceptions   import (
     TGFE_BadUserInSystem,
@@ -37,7 +37,7 @@ back_api = BackAPIFactory.Make()
 @dp.errors_handler(exception=TGFE_BadUserInSystem) 
 async def bad_user_in_the_system_handler(update, exc): 
     back.api.DeleteUser(exc.tg_user_id)
-    await StatsDB().SetUserNotMessagable(tg_user_id)
+    await stats_db.SetUserNotMessagable(tg_user_id)
     return True 
 
 

@@ -7,7 +7,7 @@ from ..Utils                        import (
     update_user_last_action_time
 )
 from ..Storage                      import Storage
-from ..Statistics                   import StatsDB 
+from ..Statistics                   import stats_db 
 
 
 class sessionControl(BaseMiddleware):
@@ -22,7 +22,7 @@ class sessionControl(BaseMiddleware):
         s_h = Storage()
         if not s_h.HasUser(tg_user_id):
             s_h.AddUser(tg_user_id)
-            await StatsDB().NewUser(tg_user_id)
+            await stats_db.NewUser(tg_user_id)
         
         if not SessionLock.Lock(tg_user_id):
             raise CancelHandler()

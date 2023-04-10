@@ -14,7 +14,6 @@ logger  = DefaultLogger()
 class MessageManager():
     @staticmethod
     async def SendText(text, tg_user_id):
-        global __logger
         try:
             resp = await bot.send_message(
                      tg_user_id, 
@@ -22,14 +21,13 @@ class MessageManager():
                      parse_mode=ParseMode.MARKDOWN)
             return resp.message_id
         except BotBlocked:
-            __logger(f"\nCannot send text {text} -- user {tg_user_id} blocked the bot!",
+            logger(f"\nCannot send text {text} -- user {tg_user_id} blocked the bot!",
                      exc_info=True)
             raise TGFE_BadUserInSystem("In MessageManager.SendText", 
                                       tg_user_id)
 
     @staticmethod
     async def SendInlineKB(kb, kb_desc, tg_user_id):
-        global __logger
         try:
             resp = await bot.send_message(
                      tg_user_id, 
@@ -38,7 +36,7 @@ class MessageManager():
                      parse_mode=ParseMode.MARKDOWN)
             return resp.message_id
         except BotBlocked:
-            __logger(f"\nCannot send inline KB {kb_desc} -- user {tg_user_id} blocked the bot!",
+            logger(f"\nCannot send inline KB {kb_desc} -- user {tg_user_id} blocked the bot!",
                      exc_info=True)
             raise TGFE_BadUserInSystem("In MessageManager.SenfInlineKB", 
                                       tg_user_id)

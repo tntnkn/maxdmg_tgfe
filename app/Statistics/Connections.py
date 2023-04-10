@@ -17,7 +17,7 @@ else:
         drivername='postgresql+asyncpg',
         host='stats_db',
         port='5432',
-        database=config.STATS_DB_NAME,
+        database='tgfe_stats_db',
         username='tgfe_stats_admin',
         password=config.STATS_DB_PASS,
     )
@@ -26,5 +26,6 @@ else:
         url,
         pool_size=10, 
         max_overflow=5,
+        connect_args={'timeout': 2},
     )
 

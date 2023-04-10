@@ -12,7 +12,15 @@ from .Schema        import (
     tg_users_table, 
     download_dates_table,
 )
+from ..Exceptions   import (
+    TGFE_StatsDBError,
+)
+from ..Loggers      import (
+    DefaultLogger,
+)
 
+
+logger   = DefaultLogger()
 
 class StatsDB():
     def __init__(self):
@@ -27,47 +35,57 @@ class StatsDB():
                   bindparam('tg_user_id') ). \
             values( is_messagable=bindparam('status') )
         self.insert_new_document = insert(download_dates_table)
-             
-    async def NewUser(self, tg_user_id):
-        async with a_engine.connect() as conn:
+            
+    
+    def __db_exception(func):
+        async def wrapper(self, *args, **kwargs):
+            try:
+               async with a_engine.connect() as conn:
+                    await func(self, *args, **kwargs, conn=conn)
+            except:
+                logger.error('Error in StatsDB', exc_info=True)
+                #raise TGFE_StatsDBError('Error in StatsDB')
+        return wrapper
+
+    @__db_exception
+    async def NewUser(self, tg_user_id, conn=None):
             try:
                 res = await conn.execute(
                     self.insert_user,
                     {'tg_id' : tg_user_id}
                 )
             except exc.IntegrityError:
+                await conn.rollback()
                 await self.__ExecUserMessagibility(
                     tg_user_id, True, conn)
             await conn.commit()
 
-    async def SetUserNotMessagable(self, tg_user_id):
-        async with a_engine.connect() as conn:
-            await self.__ExecUserMessagibility(
-                tg_user_id, False, conn)
-            await conn.commit()
+    @__db_exception
+    async def SetUserNotMessagable(self, tg_user_id, conn=None):
+        await self.__ExecUserMessagibility(
+            tg_user_id, False, conn)
+        await conn.commit()
 
-    async def SetUserMessagable(self, tg_user_id):
-        async with a_engine.connect() as conn:
-            await self.__ExecUserMessagibility(
-                tg_user_id, True, conn)
-            await conn.commit()
+    @__db_exception
+    async def SetUserMessagable(self, tg_user_id, conn=None):
+        await self.__ExecUserMessagibility(
+            tg_user_id, True, conn)
+        await conn.commit()
 
-    async def NewDocumentGenerated(self, tg_user_id):
-        async with a_engine.connect() as conn:
-            t = datetime.datetime.today() 
-            res = await conn.execute(
-                self.insert_new_document,
-                {'date':t.date(), 
-                 'time':t.time(),
-                 'tg_user_id':tg_user_id},
-            )
-            await conn.commit()
+    @__db_exception
+    async def NewDocumentGenerated(self, tg_user_id, conn=None):
+        t = datetime.datetime.today() 
+        res = await conn.execute(
+            self.insert_new_document,
+            {'date':t.date(), 
+             'time':t.time(),
+             'tg_user_id':tg_user_id},
+        )
+        await conn.commit()
 
-    async def __ExecUserMessagibility(
-        self, tg_user_id, status, conn):
-            res = await conn.execute(
-                self.set_user_messagability,
-                {'tg_user_id': tg_user_id, 'status': status},
-            )
-
+    async def __ExecUserMessagibility(self, tg_user_id, status, conn):
+        res = await conn.execute(
+            self.set_user_messagability,
+            {'tg_user_id': tg_user_id, 'status': status},
+        )
 

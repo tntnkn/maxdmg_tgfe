@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  bot:
+    build: . 
+    depends_on:
+      stats_db:
+        condition: service_healthy
+    env_file: 
+      - ./.env.docker-compose
+      - ./.env
+    environment:
+      PROD: 1
+    working_dir: ${WORKING_DIR} 
+    volumes:
+      - ./logs:${WORKING_DIR}${LOG_DIR}
+    networks:
+      - tgfe
+    ports: 
+      - "${TGFE_HOST_PORT}:${WEBAPP_PORT}"
+    deploy:
+      resources:
+        limits:
+          memory: 1GB
+        reservations:
+          cpus: '1'
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+  
+  stats_db:
+    image: postgres:14
+    env_file: 
+      - ./.env.docker-compose
+      - ./.env.stats_db
+    environment:
+      PGDATA: "${PGDATA_PATH}/pgdata"
+    volumes:
+      - ./stats_db/init_scripts:/docker-entrypoint-initdb.d
+      - ./stats_db/data:${PGDATA_PATH}
+    networks:
+      - tgfe
+      - tgfe_stats_db
+    ports:
+      - "${STATS_DB_HOST_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+networks:
+  tgfe:
+    driver: bridge
+  tgfe_stats_db:
+    driver: bridge
+    attachable: true
+

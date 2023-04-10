@@ -70,4 +70,5 @@ class Config():
         self.STATS_DB_PASS  = \
             os.getenv('TGFE_STATS_ADMIN_PASS')
 
-        self.TEST_DB = os.getenv('TEST_DB', 0)
+        self.TEST_DB = not os.getenv('PROD', 0)
+

@@ -19,9 +19,9 @@ Jinja2==3.1.2
 lxml==4.9.2
 magic-filter==1.0.9
 MarkupSafe==2.1.2
-maxdmg-back==0.0.4
+maxdmg-back==0.0.5
 maxdmg-docgen==0.0.3
-maxdmg-resource==0.0.2
+maxdmg-resource==0.0.3
 multidict==6.0.4
 pyairtable==1.4.0
 python-docx==0.8.11
